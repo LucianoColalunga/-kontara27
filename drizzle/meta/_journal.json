@@ -29,6 +29,13 @@
       "when": 1793679807142,
       "tag": "0003_membership_self_leave",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793681930024,
+      "tag": "0004_ops_functions",
+      "breakpoints": true
     }
   ]
 }

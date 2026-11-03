@@ -104,9 +104,12 @@ export class DocumentService {
     return hmacSha256(this.deps.signingKey, `file:${fileId}:${userId}:${expires}`);
   }
 
-  /** Enlace firmado, ligado al usuario y válido 5 minutos. La ruta además vuelve a verificar la sesión y RLS. */
-  createDownloadLink(ctx: TenantContext, fileId: string): string {
-    authorize(ctx, "documents.view");
+  /**
+   * Enlace firmado, ligado al usuario y válido 5 minutos. La ruta además vuelve a verificar la sesión,
+   * RLS y el permiso según el tipo de archivo (comprobante o planilla de importación).
+   */
+  createDownloadLink(ctx: TenantContext, fileId: string, purpose: "attachment" | "import_source" = "attachment"): string {
+    authorize(ctx, purpose === "import_source" ? "imports.run" : "documents.view");
     const expires = Math.floor(this.deps.clock.now().getTime() / 1000) + LINK_TTL_SECONDS;
     const sig = this.signature(fileId, ctx.userId, expires);
     return `/api/files/${fileId}?org=${encodeURIComponent(ctx.organization.slug)}&exp=${expires}&sig=${sig}`;

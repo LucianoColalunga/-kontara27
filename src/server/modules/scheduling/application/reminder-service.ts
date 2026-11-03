@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, between, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { parseMoney } from "@/lib/money";
-import { categories, reminders } from "@/server/db/schema";
+import { categories, notifications, reminders } from "@/server/db/schema";
 import { recordAudit, type RequestMeta } from "@/server/platform/audit";
 import type { Clock } from "@/server/platform/clock";
 import { type Database, withTenant } from "@/server/platform/db";
@@ -134,6 +134,42 @@ export class ReminderService {
       }
       await recordAudit(tx, { action: "reminder.completed", actorUserId: ctx.userId, organizationId: ctx.organizationId, entityType: "reminder", entityId: id, metadata: { movementId, nextId }, request: meta });
       return { movementId, nextId };
+    });
+  }
+
+  /**
+   * Notifica dentro de la app los vencimientos que entran en su ventana de aviso (o ya vencieron) a
+   * quienes pueden ver vencimientos. Idempotente por vencimiento y fecha (clave de deduplicación).
+   */
+  async notifyUpcoming(ctx: TenantContext): Promise<number> {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: ctx.organization.timezone }).format(this.clock.now());
+    return withTenant(this.db, tenantScope(ctx), async (tx) => {
+      const due = await tx
+        .select()
+        .from(reminders)
+        .where(and(eq(reminders.status, "open"), sql`${reminders.dueOn} - (${reminders.notifyDaysBefore} * interval '1 day') <= ${today}::date`));
+      if (!due.length) return 0;
+      const recipients = await tx.execute<{ user_id: string }>(sql`
+        select m.user_id from memberships m join roles r on r.id = m.role_id
+        where m.status = 'active' and (r.key = 'owner' or 'reminders.view' = any(r.permissions))`);
+      let created = 0;
+      for (const reminder of due) {
+        const overdue = reminder.dueOn < today;
+        const values = recipients.rows.map((r) => ({
+          id: uuidv7(),
+          organizationId: ctx.organizationId,
+          userId: r.user_id,
+          type: "reminder_due",
+          title: overdue ? `Vencido: ${reminder.title}` : `Vence ${reminder.title}`,
+          body: `Fecha: ${reminder.dueOn}.`,
+          href: `/app/${ctx.organization.slug}/vencimientos`,
+          dedupeKey: `reminder:${reminder.id}:${reminder.dueOn}:${overdue ? "overdue" : "soon"}`,
+        }));
+        if (!values.length) continue;
+        const inserted = await tx.insert(notifications).values(values).onConflictDoNothing().returning({ id: notifications.id });
+        created += inserted.length;
+      }
+      return created;
     });
   }
 

@@ -17,6 +17,26 @@ describe("lector XLSX", () => {
     expect(sheet.cells.get("D1")).toMatchObject({ formula: "SUM(C1:C1)", value: "13579.29" });
   });
 
+  it("reconoce fórmulas compartidas (arrastradas) y les asigna el texto de la maestra", () => {
+    const wb = readWorkbook(
+      buildXlsx([
+        {
+          name: "JUNIO",
+          cells: {
+            A1: "Fecha", B1: "Categoria", C1: "Descripcion", D1: "Gasto", E1: "Ingreso",
+            A2: { v: "2026-06-23", date: true }, B2: "Insumos", C2: "Compra", D2: 580,
+            J11: "Servicios", K11: { f: "SUMIFS($D$2:$D99,$B$2:$B99,J11)", v: 0, shared: { si: 0, ref: "K11:K12" } },
+            J12: "Insumos", K12: { v: 580, shared: { si: 0 } },
+          },
+        },
+      ]),
+    );
+    const follower = wb.sheets[0]!.cells.get("K12")!;
+    expect(follower).toMatchObject({ formula: "SUMIFS($D$2:$D99,$B$2:$B99,J11)", formulaShared: true, value: "580" });
+    // El resumen por categoría cubre todo: no debe informar una diferencia inexistente.
+    expect(extractMonthlySheets(wb)!.findings.map((f) => f.code)).not.toContain("CATEGORY_SUMMARY_GAP");
+  });
+
   it("convierte números de serie de Excel a fecha (incluido el bisiesto ficticio de 1900)", () => {
     expect(serialToIsoDate(46262, false)).toBe("2026-08-28");
     expect(serialToIsoDate(61, false)).toBe("1900-03-01");

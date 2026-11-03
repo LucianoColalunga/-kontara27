@@ -41,6 +41,9 @@ const rowPatch = z.object({
   description: z.string().trim().max(500),
 });
 
+/** Colores de las categorías creadas al importar (misma paleta validada de los gráficos y tonos de apoyo). */
+const IMPORTED_CATEGORY_COLORS = ["#2A78D6", "#EB6834", "#1BAF7A", "#EDA100", "#E87BA4", "#008300", "#6250D6", "#E34948"];
+
 interface SheetTotals {
   expense: bigint;
   income: bigint;
@@ -354,7 +357,7 @@ export class ImportService {
         const scopes = new Set(toImport.filter((r) => r.categoryLabel === label && r.kind).map((r) => KIND_INFO[r.kind!].categoryScope).filter(Boolean));
         const scope = scopes.size === 1 ? ([...scopes][0] as "income" | "expense") : "both";
         const id = uuidv7();
-        await tx.insert(categories).values({ id, organizationId: ctx.organizationId, name, scope, sortOrder: 500 });
+        await tx.insert(categories).values({ id, organizationId: ctx.organizationId, name, scope, color: IMPORTED_CATEGORY_COLORS[createdCategories % IMPORTED_CATEGORY_COLORS.length], sortOrder: 500 + createdCategories });
         existing.push({ id, name });
         mapping[label] = id;
         createdCategories += 1;

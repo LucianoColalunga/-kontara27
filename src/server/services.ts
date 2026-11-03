@@ -23,6 +23,7 @@ import { BudgetService } from "@/server/modules/budgeting";
 import { DocumentService } from "@/server/modules/documents";
 import { ReminderService } from "@/server/modules/scheduling";
 import { PrivacyService } from "@/server/modules/privacy";
+import { NotificationService } from "@/server/modules/notifications";
 
 export interface ServiceDeps {
   db: Database;
@@ -78,6 +79,7 @@ export function buildServices(deps: ServiceDeps) {
     documents,
     reminders: new ReminderService(deps.db, movementsService, clock),
     privacy: new PrivacyService(deps.db, clock),
+    notifications: new NotificationService(deps.db),
   };
 }
 

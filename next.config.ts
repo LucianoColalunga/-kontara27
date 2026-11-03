@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@node-rs/argon2", "@react-pdf/renderer", "pg", "embedded-postgres"],
   experimental: {
     serverActions: {
-      // Las importaciones de planillas pasan por route handlers; las Server Actions solo reciben formularios.
-      bodySizeLimit: "2mb",
+      // Comprobantes de hasta 10 MB y planillas de hasta 5 MB viajan en Server Actions (los servicios validan el tamaño real).
+      bodySizeLimit: "12mb",
     },
   },
   // Las cabeceras de seguridad que dependen del request (CSP con nonce) se fijan en src/proxy.ts.

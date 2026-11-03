@@ -9,6 +9,8 @@ export interface FixtureCell {
   v?: string | number;
   f?: string;
   date?: boolean;
+  /** Fórmula compartida: la maestra lleva el texto y el rango; las seguidoras solo el índice. */
+  shared?: { si: number; ref?: string };
 }
 
 export interface FixtureSheet {
@@ -37,7 +39,7 @@ export function buildXlsx(sheets: FixtureSheet[], options: { creator?: string } 
     for (const [ref, input] of entries) {
       const cell: FixtureCell = typeof input === "object" ? input : { v: input };
       const row = Number(/\d+/.exec(ref)![0]);
-      const f = cell.f ? `<f>${esc(cell.f)}</f>` : "";
+      const f = cell.shared ? (cell.shared.ref ? `<f t="shared" ref="${cell.shared.ref}" si="${cell.shared.si}">${esc(cell.f ?? "")}</f>` : `<f t="shared" si="${cell.shared.si}"/>`) : cell.f ? `<f>${esc(cell.f)}</f>` : "";
       let xml: string;
       if (cell.date && typeof cell.v === "string") xml = `<c r="${ref}" s="1">${f}<v>${isoToSerial(cell.v)}</v></c>`;
       else if (typeof cell.v === "number" || (typeof cell.v === "string" && /^-?\d+(\.\d+)?$/.test(cell.v))) xml = `<c r="${ref}">${f}<v>${cell.v}</v></c>`;

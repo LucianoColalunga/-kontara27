@@ -31,6 +31,8 @@ export interface DeclaredTotal {
   /** Valor exacto que muestra la planilla (texto decimal). */
   value: string;
   formula: string | null;
+  /** La fórmula es compartida (arrastrada): su texto es el de la celda maestra. */
+  shared?: boolean;
 }
 
 export interface WorkbookFinding {

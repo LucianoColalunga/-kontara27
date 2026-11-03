@@ -39,7 +39,7 @@ function declaredTotals(sheet: Sheet): { expense?: DeclaredTotal; income?: Decla
     for (let col = cell.col + 1; col <= cell.col + 5; col++) {
       const target = cellAt(sheet, col, cell.row);
       if (target && (target.type === "number" || target.formula)) {
-        out[match.key] = { sheet: sheet.name, cell: target.ref, label: cell.value, value: target.type === "number" ? target.value : "0", formula: target.formula };
+        out[match.key] = { sheet: sheet.name, cell: target.ref, label: cell.value, value: target.type === "number" ? target.value : "0", formula: target.formula, shared: target.formulaShared ?? false };
         break;
       }
     }
@@ -118,7 +118,7 @@ export function extractMonthlySheets(workbook: Workbook): Extraction | null {
         findings.push({ code: "TOTAL_HARDCODED", severity: "warning", sheet: sheet.name, cell: total.cell, message: `«${total.label}» (${sheet.name}!${total.cell}) es un valor escrito a mano (${total.value}), no una fórmula.` });
       }
       const column = key === "expense" ? cols.expense : key === "income" ? cols.income : undefined;
-      const sumRange = total.formula ? /^SUM\(\$?([A-Z]+)\$?(\d+):\$?([A-Z]+)\$?(\d+)\)$/i.exec(total.formula.replace(/\s/g, "")) : null;
+      const sumRange = total.formula && !total.shared ? /^SUM\(\$?([A-Z]+)\$?(\d+):\$?([A-Z]+)\$?(\d+)\)$/i.exec(total.formula.replace(/\s/g, "")) : null;
       if (sumRange && column && sumRange[1]!.toUpperCase() === columnLetters(column)) {
         const start = Number(sumRange[2]);
         const end = Number(sumRange[4]);

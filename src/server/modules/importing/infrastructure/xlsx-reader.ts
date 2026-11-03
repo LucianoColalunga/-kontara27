@@ -22,6 +22,11 @@ export interface Cell {
   /** Texto exacto: el número tal como está en el XML, el texto ya decodificado, o la fecha ISO (YYYY-MM-DD). */
   value: string;
   formula: string | null;
+  /**
+   * true si la celda pertenece a una fórmula compartida (Excel guarda así las fórmulas arrastradas):
+   * `formula` tiene el texto de la celda maestra, sin desplazar referencias relativas.
+   */
+  formulaShared?: boolean;
   numberFormat: string | null;
 }
 
@@ -180,6 +185,7 @@ export function readWorkbook(data: Uint8Array): Workbook {
     const path = relId ? rels.get(relId) : undefined;
     const xml = path ? text(path) : null;
     const sheet: Sheet = { name: decodeXml(name), state, cells: new Map(), maxRow: 0, maxCol: 0 };
+    const sharedFormulas = new Map<string, string>();
     if (xml) {
       const sheetData = /<sheetData\b[^>]*>([\s\S]*?)<\/sheetData>|<sheetData\/>/.exec(xml)?.[1] ?? "";
       for (const c of sheetData.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
@@ -189,8 +195,19 @@ export function readWorkbook(data: Uint8Array): Workbook {
         if (!ref) continue;
         const t = /\st="([^"]+)"/.exec(attrs)?.[1] ?? "n";
         const styleIndex = Number(/\ss="(\d+)"/.exec(attrs)?.[1] ?? 0);
-        const formulaMatch = /<f\b[^>]*>([\s\S]*?)<\/f>|<f\b[^>]*\/>/.exec(inner);
-        const formula = formulaMatch ? (formulaMatch[1] !== undefined ? decodeXml(formulaMatch[1]) : "(fórmula compartida)") : null;
+        const formulaMatch = /<f\b([^>]*)>([\s\S]*?)<\/f>|<f\b([^>]*)\/>/.exec(inner);
+        let formula: string | null = null;
+        let formulaShared = false;
+        if (formulaMatch) {
+          const fAttrs = formulaMatch[1] ?? formulaMatch[3] ?? "";
+          const text = formulaMatch[2] !== undefined ? decodeXml(formulaMatch[2]) : "";
+          const si = /\st="shared"/.test(fAttrs) ? /\ssi="(\d+)"/.exec(fAttrs)?.[1] : undefined;
+          if (si !== undefined && text) sharedFormulas.set(si, text);
+          if (si !== undefined) {
+            formulaShared = true;
+            formula = text || sharedFormulas.get(si) || "(fórmula compartida)";
+          } else formula = text || "(fórmula)";
+        }
         const v = /<v>([\s\S]*?)<\/v>/.exec(inner)?.[1];
         const style = xfFormats[styleIndex] ?? { code: null, isDate: false };
         let type: CellType = "number";
@@ -227,7 +244,7 @@ export function readWorkbook(data: Uint8Array): Workbook {
         if (value === null && formula === null) continue;
         const col = columnIndex(ref[1]!);
         const row = Number(ref[2]);
-        sheet.cells.set(`${ref[1]}${ref[2]}`, { ref: `${ref[1]}${ref[2]}`, row, col, type, value: value ?? "", formula, numberFormat: style.code });
+        sheet.cells.set(`${ref[1]}${ref[2]}`, { ref: `${ref[1]}${ref[2]}`, row, col, type, value: value ?? "", formula, formulaShared, numberFormat: style.code });
         sheet.maxRow = Math.max(sheet.maxRow, row);
         sheet.maxCol = Math.max(sheet.maxCol, col);
         if (++totalCells > LIMITS.cells) throw new WorkbookReadError("El archivo tiene demasiadas celdas para importarlo.");
