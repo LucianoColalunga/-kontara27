@@ -1,0 +1,50 @@
+# --- Datos privados: NUNCA versionar ---
+# Datos reales de clientes, copias de planillas y reportes con importes reales.
+/private/
+# Archivos adjuntos y originales subidos en desarrollo.
+/storage/
+# Base de datos local embebida.
+/.data/
+# Cualquier planilla fuera de los fixtures sintéticos de pruebas.
+*.xlsx
+*.xls
+*.xlsm
+*.ods
+*.csv
+!/tests/fixtures/**/*.xlsx
+!/tests/fixtures/**/*.csv
+
+# --- Secretos ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# --- Dependencias y builds ---
+/node_modules/
+/.next/
+/out/
+/build/
+/dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Pruebas ---
+/coverage/
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
+# --- Herramientas y sistema ---
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.vercel
