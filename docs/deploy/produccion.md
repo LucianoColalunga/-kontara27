@@ -7,6 +7,20 @@ son las propiedades que se piden en cada paso.
 > Antes de abrirla al público revisá el
 > [criterio para pasar a producción](../security/informe-2026-11-03.md#criterio-para-pasar-a-producción).
 
+## 0. Repositorio público en GitHub
+
+El repositorio es público: contiene solo código y documentación. Los datos de clientes, las planillas, la
+documentación interna y las claves viven fuera de él (`private/`, `.env.local` y los servicios de cada
+entorno están excluidos por `.gitignore`).
+
+Al crearlo, activá en **Settings**:
+
+- **Code security:** Dependabot alerts y security updates, Secret scanning con **Push protection**, y
+  **Private vulnerability reporting** (es el canal que indica `SECURITY.md`).
+- **Rules → Rulesets** para `main`: exigir pull request y que pasen los checks **CI**, **Seguridad** y
+  **CodeQL**; bloquear force push y borrado de la rama.
+- **Actions → General:** permisos de `GITHUB_TOKEN` en solo lectura (los workflows piden lo que necesitan).
+
 ## 1. Cuentas y servicios (los contrata la persona responsable)
 
 | Servicio | Para qué | Plan |

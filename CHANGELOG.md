@@ -25,8 +25,9 @@ Primera versión funcional, sin instalación de producción todavía.
 - Identidad visual KONTARA 27, sistema de diseño claro/oscuro, manual de marca en `/marca` y PWA instalable.
 - Pruebas unitarias, de integración (PostgreSQL real) y E2E sobre el build de producción, con accesibilidad
   (axe) y diseño en celular.
-- CI (calidad, integración, E2E) y workflow de seguridad (Gitleaks, Semgrep, Trivy, npm audit, OWASP ZAP);
-  Dependabot.
+- CI (calidad, integración, E2E), workflow de seguridad (Gitleaks, Semgrep, Trivy, npm audit, OWASP ZAP),
+  CodeQL y Dependabot.
+- Licencia: código público para lectura y auditoría, todos los derechos reservados.
 - Documentación: arquitectura, ADR, despliegue, modelo de amenazas, informe de seguridad y marca.
 
 ### Seguridad

@@ -124,4 +124,5 @@ docs/               arquitectura, ADR, seguridad, despliegue, marca, investigaci
 
 ## Licencia
 
-Software propietario. © 2026 Luciano Colalunga. Todos los derechos reservados.
+Código público para lectura y auditoría, sin licencia de uso: © 2026 Luciano Colalunga, todos los derechos
+reservados. Ver [LICENSE](LICENSE).
