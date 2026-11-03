@@ -10,7 +10,6 @@
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import EmbeddedPostgres from "embedded-postgres";
 import pg from "pg";
@@ -25,11 +24,11 @@ const superPassword = process.env.LOCAL_PG_SUPERUSER_PASSWORD ?? "local-superuse
 const adminUrl = `postgres://postgres:${encodeURIComponent(superPassword)}@127.0.0.1:${port}/postgres`;
 const command = process.argv[2] ?? "start";
 
-function pgCtlPath(): string {
+/** Ruta de pg_ctl que publica el paquete de binarios de esta plataforma (solo exporta su entrada principal). */
+async function pgCtlPath(): Promise<string> {
   const platform = process.platform === "win32" ? "windows" : process.platform;
-  const pkg = `@embedded-postgres/${platform}-${process.arch}/package.json`;
-  const root = path.dirname(createRequire(import.meta.url).resolve(pkg));
-  return path.join(root, "native", "bin", process.platform === "win32" ? "pg_ctl.exe" : "pg_ctl");
+  const binaries = (await import(`@embedded-postgres/${platform}-${process.arch}`)) as { pg_ctl: string };
+  return binaries.pg_ctl;
 }
 
 async function isRunning(): Promise<boolean> {
@@ -43,9 +42,9 @@ async function isRunning(): Promise<boolean> {
   }
 }
 
-function stop(): void {
+async function stop(): Promise<void> {
   if (!existsSync(path.join(dataDir, "postmaster.pid"))) return;
-  spawnSync(pgCtlPath(), ["stop", "-D", dataDir, "-m", "fast", "-w"], { stdio: "inherit" });
+  spawnSync(await pgCtlPath(), ["stop", "-D", dataDir, "-m", "fast", "-w"], { stdio: "inherit" });
 }
 
 async function bootstrap(): Promise<void> {
@@ -57,12 +56,12 @@ async function bootstrap(): Promise<void> {
 }
 
 if (command === "stop") {
-  stop();
+  await stop();
   process.exit(0);
 }
 
 if (command === "reset") {
-  stop();
+  await stop();
   rmSync(dataDir, { recursive: true, force: true });
   console.log("Clúster local eliminado.");
 }
