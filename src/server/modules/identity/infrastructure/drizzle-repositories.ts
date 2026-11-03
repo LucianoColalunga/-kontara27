@@ -54,8 +54,8 @@ export class DrizzleUserRepository implements UserRepository {
       .where(eq(users.id, id));
   }
 
-  async updateProfile(id: string, data: { name?: string; locale?: string; residenceCountry?: string | null }): Promise<void> {
-    await this.db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, id));
+  async updateProfile(id: string, data: { name?: string; locale?: string; residenceCountry?: string | null }, at: Date): Promise<void> {
+    await this.db.update(users).set({ ...data, updatedAt: at }).where(eq(users.id, id));
   }
 }
 

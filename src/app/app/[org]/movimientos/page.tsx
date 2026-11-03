@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, ChevronRight, Download, Paperclip, Plus, Search } from "lucide-react";
 import { Money } from "@/components/ui/money";
-import { Badge, buttonClass, Callout, Card, EmptyState, Input, LinkButton, PageHeader, Select } from "@/components/ui/primitives";
+import { Badge, buttonClass, Callout, Card, EmptyState, Input, LinkButton, PageHeader, Select, scrollable } from "@/components/ui/primitives";
 import { KIND_INFO, MOVEMENT_KINDS } from "@/lib/movement-kinds";
 import { formatDate } from "@/lib/periods";
 import { getServices } from "@/server/container";
@@ -84,7 +84,7 @@ export default async function MovementsPage({ params, searchParams }: { params: 
       />
       {q.eliminado ? <Callout tone="good" className="mb-4">Movimiento eliminado. Queda en «Eliminados» y en el historial; se puede restaurar.</Callout> : null}
 
-      <form action={`${base}/movimientos`} className="card mb-4 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(5,minmax(0,1fr))_auto]" role="search">
+      <form action={`${base}/movimientos`} className="card mb-4 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(5,minmax(0,1fr))_auto]" role="search">
         <label className="relative sm:col-span-2 lg:col-span-1">
           <span className="sr-only">Buscar</span>
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
@@ -144,7 +144,7 @@ export default async function MovementsPage({ params, searchParams }: { params: 
         {result.rows.length === 0 ? (
           <EmptyState title={hasFilters ? "Sin resultados" : "Todavía no hay movimientos"} description={hasFilters ? "Probá con otros filtros." : "Registrá el primero o importá tu planilla."} action={!hasFilters && can(ctx, "movements.create") ? <LinkButton href={`${base}/movimientos/nuevo`}>Nuevo movimiento</LinkButton> : undefined} />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" {...scrollable("Listado de movimientos")}>
             <table className="w-full min-w-[640px] text-left text-[14px]">
               <caption className="sr-only">Movimientos</caption>
               <thead>

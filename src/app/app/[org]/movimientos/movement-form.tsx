@@ -53,7 +53,7 @@ export function MovementForm({ org, options, defaults, mode, canAttach }: { org:
       {defaults.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
       {defaults.version ? <input type="hidden" name="version" value={defaults.version} /> : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Tipo" htmlFor="typeId" error={err("typeId")}>
           <Select id="typeId" name="typeId" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
             {GROUPS.map((g) => (
@@ -129,7 +129,7 @@ export function MovementForm({ org, options, defaults, mode, canAttach }: { org:
 
       <details className="rounded-xl border border-border px-4 py-3" open={Boolean(defaults.notes || defaults.reference || defaults.sectorId || (defaults.status && defaults.status !== "completed"))}>
         <summary className="cursor-pointer text-[14px] font-semibold">Más detalles</summary>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Estado" htmlFor="status" hint="Solo los realizados cuentan en saldos y reportes.">
             <Select id="status" name="status" defaultValue={defaults.status ?? "completed"}>
               <option value="completed">Realizado</option>

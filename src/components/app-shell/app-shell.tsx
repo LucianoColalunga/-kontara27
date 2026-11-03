@@ -85,7 +85,7 @@ export function AppShell({ slug, organizationName, roleName, permissions, user, 
             ) : null}
             <Link href={`${base}/notificaciones`} className="relative grid h-9 w-9 place-items-center rounded-[10px] text-text-2 hover:bg-surface-2" aria-label={unread ? `Notificaciones: ${unread} sin leer` : "Notificaciones"}>
               <Bell className="h-[18px] w-[18px]" aria-hidden />
-              {unread ? <span className="absolute top-1.5 right-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-critical px-1 text-[10px] font-bold text-white">{unread > 9 ? "9+" : unread}</span> : null}
+              {unread ? <span className="absolute top-1.5 right-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-critical px-1 text-[10px] font-bold text-critical-fg">{unread > 9 ? "9+" : unread}</span> : null}
             </Link>
             <Link href="/cuenta" className="grid h-9 w-9 place-items-center rounded-[10px] text-text-2 hover:bg-surface-2 lg:hidden" aria-label="Mi cuenta">
               <CircleUser className="h-[18px] w-[18px]" aria-hidden />

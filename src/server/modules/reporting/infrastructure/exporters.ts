@@ -24,7 +24,9 @@ export function toCsv(table: Table, currency: string, decimalComma = true): Uint
     else text = String(value);
     if (decimalComma && (kind === "money" || kind === "percent")) text = text.replace(".", ",");
     if (kind === "text") text = neutralizeFormula(text);
-    return /[";\n\r,]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    // Solo se entrecomilla lo que contiene el separador, comillas o saltos de línea.
+    const mustQuote = decimalComma ? /[";\n\r]/ : /[",\n\r]/;
+    return mustQuote.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   };
   const lines = [table.columns.map((c) => cell(c.header, "text")).join(sep), ...[...table.rows, ...(table.footer ?? [])].map((r) => r.map((v, i) => cell(v, table.columns[i]!.kind)).join(sep))];
   return new TextEncoder().encode(`﻿${lines.join("\r\n")}\r\n`);

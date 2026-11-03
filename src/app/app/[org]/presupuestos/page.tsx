@@ -27,7 +27,7 @@ export default async function BudgetsPage({ params }: { params: Promise<{ org: s
         ) : (
           <ul className="mt-3 divide-y divide-border">
             {progress.map((b) => (
-              <li key={b.id} className="grid gap-3 px-5 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] md:items-center">
+              <li key={b.id} className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] md:items-center">
                 <div className="min-w-0">
                   <p className="font-semibold">{b.name}</p>
                   <p className="text-[12px] text-muted">

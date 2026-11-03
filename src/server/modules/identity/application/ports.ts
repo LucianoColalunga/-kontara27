@@ -20,6 +20,8 @@ export interface NewUser {
   emailNormalized: string;
   name: string;
   passwordHash: string;
+  /** Del reloj de la aplicación, el mismo que fecha las sesiones (ver SessionService.resolve). */
+  passwordChangedAt: Date;
   locale: string;
   residenceCountry: string | null;
 }
@@ -32,7 +34,7 @@ export interface UserRepository {
   updatePassword(id: string, passwordHash: string, at: Date): Promise<void>;
   recordLoginSuccess(id: string, at: Date): Promise<void>;
   recordLoginFailure(id: string): Promise<void>;
-  updateProfile(id: string, data: { name?: string; locale?: string; residenceCountry?: string | null }): Promise<void>;
+  updateProfile(id: string, data: { name?: string; locale?: string; residenceCountry?: string | null }, at: Date): Promise<void>;
 }
 
 export interface SessionRecord {

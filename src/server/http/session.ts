@@ -35,11 +35,15 @@ export async function readSessionToken(): Promise<string | undefined> {
   return (await cookies()).get(sessionCookieName())?.value;
 }
 
-/** IP y navegador del pedido. Las cabeceras de proxy solo se creen detrás de un proxy de confianza (Vercel). */
+/**
+ * IP y navegador del pedido. Sin un proxy de confianza (Vercel o TRUST_PROXY_HEADERS=true) la IP queda
+ * vacía: X-Forwarded-For lo escribe el cliente y alcanzaría con cambiarlo para esquivar los límites por IP.
+ * Con proxy: X-Real-IP o, si falta, la última entrada de X-Forwarded-For, que es la que agrega el proxy.
+ */
 export async function requestMeta(): Promise<RequestMeta> {
   const h = await headers();
   const trusted = env().VERCEL === "1" || env().TRUST_PROXY_HEADERS === "true";
-  const ip = trusted ? (h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null) : (h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local");
+  const ip = trusted ? h.get("x-real-ip")?.trim() || h.get("x-forwarded-for")?.split(",").at(-1)?.trim() || null : null;
   return { ip, userAgent: h.get("user-agent") };
 }
 
@@ -63,7 +67,11 @@ export async function getPendingMfaSession(): Promise<ResolvedSession | null> {
 
 export async function requireUser(): Promise<ResolvedSession> {
   const session = await getSession();
-  if (!session) redirect("/ingresar");
+  if (!session) {
+    // Vuelve a la página pedida después de ingresar. La acción de ingreso solo acepta rutas internas.
+    const path = (await headers()).get("x-pathname");
+    redirect(path && path !== "/app" ? `/ingresar?next=${encodeURIComponent(path)}` : "/ingresar");
+  }
   return session;
 }
 

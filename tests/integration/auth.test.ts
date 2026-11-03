@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { hotp, base32Decode, timeStep } from "@/server/modules/identity/domain/totp";
 import { InvalidCredentialsError, InvalidTokenError, SessionService } from "@/server/modules/identity";
 import { RateLimitedError, ValidationError } from "@/server/platform/errors";
+import { RATE_LIMITS } from "@/server/platform/rate-limit";
 import { createVerifiedUser } from "@tests/support/factories";
 import { createTestEnvironment, meta, type TestEnvironment } from "@tests/support/test-db";
 
@@ -45,6 +46,15 @@ describe("autenticación", () => {
     const before = env.email.sent.length;
     await expect(env.services.auth.register({ name: "Impostor", email: user.email, password: "Otra clave segura 99", acceptTerms: true }, meta)).resolves.toBeUndefined();
     expect(env.email.sent.slice(before).map((m) => m.tag)).toEqual(["account_exists"]);
+  });
+
+  it("limita los correos de alta que recibe una misma dirección, aunque cambie la IP", async () => {
+    // El primer intento crea la cuenta y los siguientes la encuentran: todos cuentan igual (no revela si existe).
+    const attempt = (i: number) => env.services.auth.register({ name: "Julia Paz", email: "limite-alta@example.test", password: "Tardes de otoño 2026", acceptTerms: true }, { ip: `203.0.113.${i}`, userAgent: "t" });
+    const before = env.email.sent.length;
+    for (let i = 0; i < RATE_LIMITS.registerByEmail.limit; i++) await attempt(i);
+    await expect(attempt(99)).rejects.toBeInstanceOf(RateLimitedError);
+    expect(env.email.sent.length - before).toBe(RATE_LIMITS.registerByEmail.limit);
   });
 
   it("limita los intentos por cuenta", async () => {

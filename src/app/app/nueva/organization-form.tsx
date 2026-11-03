@@ -18,7 +18,7 @@ export function OrganizationForm({ countries, currencies, timezones, taxIdTypes 
   const suggested = countries.find((c) => c.code === country) ?? countries[0]!;
   return (
     <form action={action} className="space-y-6" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Nombre comercial" htmlFor="name" error={fieldError(state, "name")} className="sm:col-span-2">
           <Input id="name" name="name" required autoFocus placeholder="Ej.: Taller Norte" />
         </Field>
@@ -68,7 +68,7 @@ export function OrganizationForm({ countries, currencies, timezones, taxIdTypes 
       </div>
       <details className="rounded-xl border border-border px-4 py-3">
         <summary className="cursor-pointer text-[14px] font-semibold">Dirección (opcional)</summary>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Calle y número" htmlFor="street" className="sm:col-span-2">
             <Input id="street" name="street" autoComplete="street-address" />
           </Field>

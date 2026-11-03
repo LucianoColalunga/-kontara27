@@ -29,7 +29,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
     return (
       <>
         <PageHeader title={`Hola, ${firstName}`} description={`Estás en ${ctx.organization.name} como ${ctx.role.name}.`} />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {can(ctx, "movements.create") ? (
             <Card className="p-6">
               <h2 className="font-semibold">Registrar un movimiento</h2>
@@ -128,7 +128,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
         <div className="space-y-6 fade-in">
           {/* Número principal del período */}
           <section className="card overflow-hidden" aria-labelledby="resultado">
-            <div className="grid gap-6 p-6 lg:p-7 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+            <div className="grid grid-cols-1 gap-6 p-6 lg:p-7 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
               <div>
                 <h2 id="resultado" className="text-[13px] font-semibold text-text-2">
                   Resultado del período
@@ -154,7 +154,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
             </div>
           </section>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile label="Ingresos" minor={summary.netIncome} previous={previous.netIncome} currency={currency} locale={locale} previousLabel={previousLabel} />
             <StatTile label="Gastos" minor={summary.netExpense} previous={previous.netExpense} currency={currency} locale={locale} upIsGood={false} previousLabel={previousLabel} />
             <StatTile label="Flujo de caja neto" minor={summary.netCashFlow} previous={previous.netCashFlow} currency={currency} locale={locale} previousLabel={previousLabel} />
@@ -200,7 +200,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
             </div>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader title="Gastos por categoría" description="Netos de devoluciones" action={<Link href={`${base}/reportes?${new URLSearchParams({ periodo: period.preset, desde: period.from, hasta: period.to })}`} className="text-[13px] font-semibold text-accent">Ver reporte</Link>} />
               <div className="p-5">
@@ -215,7 +215,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
             </Card>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             {recent ? (
               <Card>
                 <CardHeader title="Últimos movimientos" action={<Link href={`${base}/movimientos`} className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent">Todos <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link>} />

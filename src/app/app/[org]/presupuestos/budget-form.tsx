@@ -10,7 +10,7 @@ export function BudgetForm({ org, currencies, categories, sectors, today }: { or
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="org" value={org} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Nombre" htmlFor="b-name" error={fieldError(state, "name")}>
           <Input id="b-name" name="name" required placeholder="Ej.: Servicios del mes" />
         </Field>

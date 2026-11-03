@@ -40,7 +40,8 @@ export class PrivacyService {
   }
 
   /** Derecho de acceso y portabilidad: datos personales del titular en un JSON legible por máquina. */
-  async exportUserData(userId: string) {
+  async exportUserData(userId: string, meta?: RequestMeta) {
+    if (meta) await recordAudit(this.db, { action: "privacy.data_exported", actorUserId: userId, request: meta });
     const [profile] = await this.db.select({ id: users.id, email: users.email, name: users.name, locale: users.locale, residenceCountry: users.residenceCountry, emailVerifiedAt: users.emailVerifiedAt, createdAt: users.createdAt, lastLoginAt: users.lastLoginAt }).from(users).where(eq(users.id, userId));
     const orgs = await withUser(this.db, userId, (tx) =>
       tx.select({ organization: organizations.name, role: roles.name, status: memberships.status, since: memberships.createdAt }).from(memberships).innerJoin(organizations, eq(organizations.id, memberships.organizationId)).innerJoin(roles, eq(roles.id, memberships.roleId)).where(eq(memberships.userId, userId)),

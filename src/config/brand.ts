@@ -17,7 +17,7 @@ export const brand = {
     ink: "#0B1A2E",
     accent: "#1D5BFF",
     accentSoft: "#E8EEFF",
-    paper: "#F6F7F9",
+    paper: "#F5F6F8",
   },
 } as const;
 

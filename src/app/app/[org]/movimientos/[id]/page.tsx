@@ -7,6 +7,7 @@ import { KIND_INFO, type MovementKind } from "@/lib/movement-kinds";
 import { minorToDecimalString } from "@/lib/money";
 import { formatDate } from "@/lib/periods";
 import { getServices } from "@/server/container";
+import { loadOrNotFound } from "@/server/http/page";
 import { requireTenant } from "@/server/http/session";
 import { can } from "@/server/modules/tenancy";
 import { reconcileAction, removeAttachmentAction, restoreMovementAction } from "../actions";
@@ -23,7 +24,7 @@ export default async function MovementPage({ params, searchParams }: { params: P
   const { creado } = await searchParams;
   const { ctx } = await requireTenant(org, "movements.view");
   const services = await getServices();
-  const movement = await services.movements.get(ctx, id);
+  const movement = await loadOrNotFound(id, () => services.movements.get(ctx, id));
   const [history, attachments, options] = await Promise.all([services.movements.history(ctx, id), can(ctx, "documents.view") ? services.documents.listForMovement(ctx, id) : [], loadMovementFormOptions(ctx)]);
   const base = `/app/${ctx.organization.slug}`;
   const locale = ctx.organization.locale;
@@ -89,7 +90,7 @@ export default async function MovementPage({ params, searchParams }: { params: P
       ) : null}
       {movement.importRowRef ? <Callout tone="info" className="mb-6">Importado de una planilla (celda de origen: {movement.importRowRef}).</Callout> : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Card className="p-5 sm:p-7">
           {editable ? (
             <MovementForm
@@ -115,7 +116,7 @@ export default async function MovementPage({ params, searchParams }: { params: P
               }}
             />
           ) : (
-            <dl className="grid gap-4 text-sm sm:grid-cols-2">
+            <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-muted">Estado</dt>
                 <dd className="font-medium">{movement.status === "completed" ? "Realizado" : movement.status === "pending" ? "Pendiente" : "Anulado"}</dd>

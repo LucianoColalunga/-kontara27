@@ -53,7 +53,7 @@ export async function assertRestrictedRole(db: Database): Promise<void> {
     from pg_roles r where r.rolname = current_user`);
   const row = result.rows[0];
   if (!row || row.rolsuper || row.rolbypassrls || row.owns_tables) {
-    throw new Error("DATABASE_URL usa un rol con privilegios que saltean RLS. Configurá el rol app_user (ver docs/deployment.md).");
+    throw new Error("DATABASE_URL usa un rol con privilegios que saltean RLS. Configurá el rol app_user (ver docs/deploy/produccion.md).");
   }
 }
 

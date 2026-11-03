@@ -18,7 +18,7 @@ export default async function ImportPage({ params }: { params: Promise<{ org: st
   return (
     <>
       <PageHeader title="Importar planilla" description="Traé tu historial desde Excel. Nada se graba hasta que revises cada fila, resuelvas los errores y confirmes; al final conciliamos los totales al centavo." />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <Card className="p-5 sm:p-7">
           <UploadForm org={ctx.organization.slug} currencies={[ctx.organization.currency, ...SUPPORTED_CURRENCIES.filter((c) => c !== ctx.organization.currency)]} defaultCurrency={ctx.organization.currency} />
         </Card>

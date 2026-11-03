@@ -18,7 +18,7 @@ import { TenancyService } from "@/server/modules/tenancy";
 import { CatalogService, MovementService } from "@/server/modules/ledger";
 import type { FileStorage } from "@/server/platform/storage";
 import { ImportService } from "@/server/modules/importing";
-import { ReportingService } from "@/server/modules/reporting";
+import { ExportService, ReportingService } from "@/server/modules/reporting";
 import { BudgetService } from "@/server/modules/budgeting";
 import { DocumentService } from "@/server/modules/documents";
 import { ReminderService } from "@/server/modules/scheduling";
@@ -63,6 +63,7 @@ export function buildServices(deps: ServiceDeps) {
   const movementsService = new MovementService(deps.db);
   const catalog = new CatalogService(deps.db);
   const documents = new DocumentService({ db: deps.db, storage: deps.storage, signingKey: deps.signingKey, clock });
+  const reporting = new ReportingService(deps.db);
   const imports = new ImportService({ db: deps.db, storage: deps.storage, movements: movementsService, rateLimiter, files: documents });
   return {
     clock,
@@ -74,7 +75,8 @@ export function buildServices(deps: ServiceDeps) {
     catalog,
     movements: movementsService,
     imports,
-    reporting: new ReportingService(deps.db),
+    reporting,
+    exports: new ExportService({ db: deps.db, movements: movementsService, reporting, rateLimiter }),
     budgets: new BudgetService(deps.db, clock),
     documents,
     reminders: new ReminderService(deps.db, movementsService, clock),

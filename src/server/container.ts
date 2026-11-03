@@ -1,4 +1,5 @@
 import "server-only";
+import path from "node:path";
 import { env } from "@/server/platform/env";
 import { getDb } from "@/server/platform/db";
 import { OutboxEmailSender, ResendEmailSender } from "@/server/platform/email";
@@ -12,11 +13,11 @@ export function getServices(): Promise<Services> {
   services ??= (async () => {
     const config = env();
     const db = await getDb();
-    const email = config.EMAIL_PROVIDER === "resend" ? new ResendEmailSender(config.RESEND_API_KEY!, config.EMAIL_FROM) : new OutboxEmailSender();
+    const email = config.EMAIL_PROVIDER === "resend" ? new ResendEmailSender(config.RESEND_API_KEY!, config.EMAIL_FROM) : new OutboxEmailSender(config.EMAIL_OUTBOX_DIR && path.resolve(config.EMAIL_OUTBOX_DIR));
     const storage =
       config.STORAGE_PROVIDER === "s3"
         ? new S3FileStorage({ endpoint: config.S3_ENDPOINT!, bucket: config.S3_BUCKET!, region: config.S3_REGION, accessKeyId: config.S3_ACCESS_KEY_ID!, secretAccessKey: config.S3_SECRET_ACCESS_KEY! })
-        : new LocalFileStorage();
+        : new LocalFileStorage(config.LOCAL_STORAGE_DIR && path.resolve(config.LOCAL_STORAGE_DIR));
     return buildServices({
       db,
       email,

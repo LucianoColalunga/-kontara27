@@ -3,7 +3,7 @@ import { Logo } from "@/components/brand/logo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_520px]">
+    <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[minmax(0,1fr)_520px]">
       <aside className="relative hidden overflow-hidden bg-[#0b1a2e] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <Link href="/" className="inline-flex items-center gap-3 text-white">
           <Logo size={34} className="[&_span]:text-white" />

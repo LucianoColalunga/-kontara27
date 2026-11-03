@@ -15,7 +15,7 @@ const variants: Record<Variant, string> = {
   primary: "bg-accent text-accent-fg hover:bg-accent-hover shadow-[0_1px_0_rgba(0,0,0,0.04)]",
   secondary: "bg-surface text-text border border-border-strong hover:bg-surface-2",
   ghost: "text-text-2 hover:bg-surface-2 hover:text-text",
-  danger: "bg-critical text-white hover:opacity-90",
+  danger: "bg-critical text-critical-fg hover:opacity-90",
   ink: "bg-ink text-ink-fg hover:opacity-90",
 };
 const sizes: Record<Size, string> = { sm: "h-8 px-3 text-[13px] gap-1.5", md: "h-10 px-4 text-sm gap-2", lg: "h-12 px-5 text-[15px] gap-2" };
@@ -83,6 +83,14 @@ export function Field({ label, htmlFor, error, hint, children, className }: { la
 }
 
 // ------------------------------------------------------------------ Superficies
+
+/**
+ * Atributos para un contenedor con desplazamiento horizontal (tablas o gráficos anchos en pantallas
+ * chicas): enfocable para recorrerlo con el teclado (WCAG 2.1.1) y anunciado con un nombre.
+ */
+export function scrollable(label: string) {
+  return { role: "region", "aria-label": label, tabIndex: 0 } as const;
+}
 
 export function Card({ className, ...props }: ComponentProps<"section">) {
   return <section className={cn("card", className)} {...props} />;

@@ -32,6 +32,8 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("Content-Security-Policy", csp);
   // Id para correlacionar logs de un mismo pedido.
   requestHeaders.set("x-request-id", crypto.randomUUID());
+  // Ruta pedida, para volver a ella después de ingresar (ver requireUser). Pisa cualquier valor del cliente.
+  requestHeaders.set("x-pathname", request.nextUrl.pathname + request.nextUrl.search);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
@@ -41,7 +43,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Todo menos estáticos versionados, imágenes optimizadas e íconos.
-    { source: "/((?!_next/static|_next/image|favicon.ico|icons/|brand/|sw.js|manifest.webmanifest).*)", missing: [{ type: "header", key: "next-router-prefetch" }] },
+    // Todo menos estáticos, íconos y la API (sus respuestas fijan su propia política: JSON o descargas con «sandbox»).
+    { source: "/((?!api/|_next/static|_next/image|favicon.ico|icons/|brand/|sw.js|manifest.webmanifest).*)", missing: [{ type: "header", key: "next-router-prefetch" }] },
   ],
 };

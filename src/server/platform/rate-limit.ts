@@ -72,6 +72,8 @@ export const RATE_LIMITS = {
   loginByAccount: { scope: "login_account", limit: 8, windowSeconds: 15 * 60 },
   mfaByAccount: { scope: "mfa_account", limit: 8, windowSeconds: 15 * 60 },
   registerByIp: { scope: "register_ip", limit: 10, windowSeconds: 60 * 60 },
+  /** Cada alta manda un correo: limita cuántos recibe una misma dirección, se use la IP que se use. */
+  registerByEmail: { scope: "register_email", limit: 3, windowSeconds: 60 * 60 },
   passwordResetByIp: { scope: "reset_ip", limit: 10, windowSeconds: 60 * 60 },
   passwordResetByAccount: { scope: "reset_account", limit: 3, windowSeconds: 60 * 60 },
   verificationResend: { scope: "verify_resend", limit: 5, windowSeconds: 60 * 60 },

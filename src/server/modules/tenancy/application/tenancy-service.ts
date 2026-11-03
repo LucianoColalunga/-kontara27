@@ -1,9 +1,9 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { ALL_PERMISSIONS, isPermission, type Permission, SYSTEM_ROLES, type SystemRoleKey } from "@/lib/permissions";
-import { accounts, categories, invitations, memberships, movementTypes, organizations, paymentMethods, roles, users } from "@/server/db/schema";
+import { accounts, auditEvents, categories, invitations, memberships, movementTypes, organizations, paymentMethods, roles, users } from "@/server/db/schema";
 import { recordAudit, type RequestMeta } from "@/server/platform/audit";
 import type { Clock } from "@/server/platform/clock";
 import { decryptString, encryptString, randomToken, sha256Hex } from "@/server/platform/crypto";
@@ -296,6 +296,22 @@ export class TenancyService {
       await tx.delete(roles).where(eq(roles.id, roleId));
       await recordAudit(tx, { action: "role.deleted", actorUserId: ctx.userId, organizationId: ctx.organizationId, entityType: "role", entityId: roleId, request: meta });
     });
+  }
+
+  // ------------------------------------------------------------------ Auditoría
+
+  async listAuditEvents(ctx: TenantContext, page = 1, pageSize = 100) {
+    authorize(ctx, "audit.view");
+    return withTenant(this.deps.db, tenantScope(ctx), (tx) =>
+      tx
+        .select({ id: auditEvents.id, action: auditEvents.action, entityType: auditEvents.entityType, entityId: auditEvents.entityId, ip: auditEvents.ip, createdAt: auditEvents.createdAt, actorName: users.name })
+        .from(auditEvents)
+        .leftJoin(users, eq(users.id, auditEvents.actorUserId))
+        .where(eq(auditEvents.organizationId, ctx.organizationId))
+        .orderBy(desc(auditEvents.createdAt))
+        .limit(pageSize)
+        .offset((Math.max(1, page) - 1) * pageSize),
+    );
   }
 
   // ------------------------------------------------------------------ Invitaciones

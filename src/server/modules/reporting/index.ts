@@ -6,3 +6,5 @@ export { movementsTable, toCsv, toXlsx } from "./infrastructure/exporters";
 export type { Table } from "./infrastructure/exporters";
 export { renderTablesPdf } from "./infrastructure/pdf";
 export { buildReports, shiftYear } from "./application/report-builder";
+export { ExportService, parseFormat } from "./application/export-service";
+export type { ExportFile, ExportFormat } from "./application/export-service";

@@ -2,15 +2,11 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { safeNext } from "@/lib/safe-next";
 import { getServices } from "@/server/container";
 import { type ActionState, formString, runAction } from "@/server/http/action";
 import { clearSessionCookie, readSessionToken, requestMeta, requireUser, setSessionCookie } from "@/server/http/session";
 import { ValidationError } from "@/server/platform/errors";
-
-/** Solo rutas internas: evita redirecciones abiertas («?next=https://sitio-malicioso»). */
-function safeNext(value: string): string {
-  return /^\/(?!\/|\\)[\w\-/?=&%.]*$/.test(value) && !value.startsWith("/api") ? value : "/app";
-}
 
 export async function loginAction(_: ActionState, form: FormData): Promise<ActionState> {
   let destination = "/app";

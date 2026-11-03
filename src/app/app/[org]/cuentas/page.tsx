@@ -40,7 +40,7 @@ export default async function AccountsPage({ params }: { params: Promise<{ org: 
           ) : null
         }
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[...totals.entries()].map(([currency, total]) => (
           <div key={currency} className="card p-5">
             <p className="text-[13px] font-semibold text-text-2">Total en {currency}</p>

@@ -44,11 +44,6 @@ const rowPatch = z.object({
 /** Colores de las categorías creadas al importar (misma paleta validada de los gráficos y tonos de apoyo). */
 const IMPORTED_CATEGORY_COLORS = ["#2A78D6", "#EB6834", "#1BAF7A", "#EDA100", "#E87BA4", "#008300", "#6250D6", "#E34948"];
 
-interface SheetTotals {
-  expense: bigint;
-  income: bigint;
-}
-
 export class ImportService {
   constructor(private readonly deps: ImportDeps) {}
 

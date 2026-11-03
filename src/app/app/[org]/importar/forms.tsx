@@ -2,7 +2,7 @@
 
 import { FileSpreadsheet } from "lucide-react";
 import { useActionState } from "react";
-import { Field, Input, Select } from "@/components/ui/primitives";
+import { Field, Input, Select, scrollable } from "@/components/ui/primitives";
 import { fieldError, FormMessage, type FormState, SubmitButton } from "@/components/ui/form-controls";
 import { KIND_INFO, MOVEMENT_KINDS } from "@/lib/movement-kinds";
 import { commitImportAction, excludeImportRowAction, saveImportSettingsAction, updateImportRowAction, uploadImportAction } from "./actions";
@@ -45,7 +45,7 @@ export function SettingsForm({ org, batchId, mapping, categories, accounts, defa
     <form action={action} className="space-y-5">
       <input type="hidden" name="org" value={org} />
       <input type="hidden" name="batchId" value={batchId} />
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" {...scrollable("Categorías de la planilla")}>
         <table className="w-full min-w-[520px] text-left text-[14px]">
           <thead>
             <tr className="border-b border-border text-[12px] font-semibold tracking-[0.04em] text-muted uppercase">
@@ -100,7 +100,7 @@ export function SettingsForm({ org, batchId, mapping, categories, accounts, defa
 export function RowEditForm({ org, batchId, row }: { org: string; batchId: string; row: { id: string; occurredOn: string | null; kind: string | null; amount: string; categoryLabel: string | null; description: string } }) {
   const [state, action] = useActionState(updateImportRowAction, initial);
   return (
-    <form action={action} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+    <form action={action} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
       <input type="hidden" name="org" value={org} />
       <input type="hidden" name="batchId" value={batchId} />
       <input type="hidden" name="rowId" value={row.id} />

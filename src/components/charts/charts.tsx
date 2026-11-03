@@ -1,6 +1,6 @@
 import { AlertTriangle, CheckCircle2, OctagonAlert } from "lucide-react";
 import { formatMoney } from "@/lib/money";
-import { cn } from "@/components/ui/primitives";
+import { cn, scrollable } from "@/components/ui/primitives";
 
 /**
  * Gráficos en SVG generado en el servidor. Especificación (ver docs/brand/README.md, sección Datos):
@@ -81,7 +81,7 @@ export function GroupedColumns({ points, series, currency, locale = "es-AR", hei
       <div className="mb-3 flex items-center justify-between gap-3">
         <Legend items={series} />
       </div>
-      <div className="-mx-1 overflow-x-auto px-1">
+      <div className="-mx-1 overflow-x-auto px-1" {...scrollable(title)}>
         <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full min-w-[560px]" role="img" aria-label={title}>
           {ticks.map((t) => (
             <g key={t}>
@@ -154,7 +154,7 @@ export function TrendLine({ points, label, currency, locale = "es-AR", height = 
 
   return (
     <figure className="m-0">
-      <div className="-mx-1 overflow-x-auto px-1">
+      <div className="-mx-1 overflow-x-auto px-1" {...scrollable(label)}>
         <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full min-w-[560px]" role="img" aria-label={label}>
           {ticks.map((t) => (
             <g key={t}>
@@ -263,7 +263,7 @@ export function DataTable({ caption, headers, rows }: { caption: string; headers
   return (
     <details className="mt-3 text-[13px]">
       <summary className="cursor-pointer select-none text-muted hover:text-text">Ver datos en tabla</summary>
-      <div className="mt-2 overflow-x-auto">
+      <div className="mt-2 overflow-x-auto" {...scrollable(caption)}>
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{caption}</caption>
           <thead>

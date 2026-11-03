@@ -13,7 +13,7 @@ export function AccountForm({ org, currencies, defaults }: { org: string; curren
     <form action={action} className="space-y-4">
       <input type="hidden" name="org" value={org} />
       {defaults ? <input type="hidden" name="id" value={defaults.id} /> : null}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Nombre" htmlFor={`name-${defaults?.id ?? "new"}`} error={fieldError(state, "name")}>
           <Input id={`name-${defaults?.id ?? "new"}`} name="name" defaultValue={defaults?.name} required placeholder="Ej.: Banco Nación" />
         </Field>

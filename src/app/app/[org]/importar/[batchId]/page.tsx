@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, CheckCircle2, Download, Info, OctagonAlert } from "lucide-react";
-import { Badge, buttonClass, Callout, Card, CardHeader, PageHeader } from "@/components/ui/primitives";
+import { Badge, buttonClass, Callout, Card, CardHeader, PageHeader, scrollable } from "@/components/ui/primitives";
 import { KIND_INFO, type MovementKind } from "@/lib/movement-kinds";
 import { formatMoney, minorToDecimalString, parseMoney } from "@/lib/money";
 import { formatDate } from "@/lib/periods";
 import { getServices } from "@/server/container";
+import { loadOrNotFound } from "@/server/http/page";
 import { requireTenant } from "@/server/http/session";
 import { cancelImportAction } from "../actions";
 import { CommitForm, ExcludeForm, RowEditForm, SettingsForm } from "../forms";
@@ -27,7 +28,7 @@ export default async function ImportBatchPage({ params, searchParams }: { params
   const q = await searchParams;
   const { ctx } = await requireTenant(org, "imports.run");
   const services = await getServices();
-  const data = await services.imports.getBatch(ctx, batchId);
+  const data = await loadOrNotFound(batchId, () => services.imports.getBatch(ctx, batchId));
   const { batch, rows, stats, mapping, reconciliation } = data;
   const base = `/app/${ctx.organization.slug}`;
   const locale = ctx.organization.locale;
@@ -69,7 +70,7 @@ export default async function ImportBatchPage({ params, searchParams }: { params
         </Callout>
       ) : null}
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {(["ready", "needs_review", "blocked", "excluded", "imported"] as const).map((s) => (
           <Link key={s} href={`${base}/importar/${batch.id}?estado=${s}`} className={`card p-4 hover:border-border-strong ${filter === s ? "ring-2 ring-accent" : ""}`}>
             <p className="text-[12px] font-semibold text-muted">{ROW_STATUS[s]!.label}</p>
@@ -78,10 +79,10 @@ export default async function ImportBatchPage({ params, searchParams }: { params
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader title="Conciliación con la planilla" description="Declarado en la planilla vs. suma independiente de sus filas. Las diferencias se explican en los hallazgos." />
-          <div className="overflow-x-auto p-5">
+          <div className="overflow-x-auto p-5" {...scrollable("Conciliación con la planilla")}>
             <table className="w-full min-w-[620px] text-left text-[13px]">
               <thead>
                 <tr className="border-b border-border text-[11px] font-semibold tracking-[0.04em] text-muted uppercase">
@@ -124,7 +125,7 @@ export default async function ImportBatchPage({ params, searchParams }: { params
                 </tr>
               </tbody>
             </table>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-surface-2 p-4">
                 <p className="text-[12px] font-semibold text-muted">{reviewing ? "Se va a importar" : "Importado (verificado en la base)"}</p>
                 <ul className="mt-2 space-y-1 text-[13px]">

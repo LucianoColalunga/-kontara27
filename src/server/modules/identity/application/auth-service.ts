@@ -103,6 +103,8 @@ export class AuthService {
     if (passwordProblem) throw new ValidationError(passwordProblem, { password: passwordProblem });
 
     const emailNormalized = normalizeEmail(data.email);
+    // Se cuenta exista o no la cuenta (anti-enumeración) y solo cuando se va a mandar un correo.
+    await this.deps.rateLimiter.consume(RATE_LIMITS.registerByEmail, emailNormalized);
     const existing = await this.deps.users.findByEmail(emailNormalized);
     if (existing) {
       await this.deps.hasher.hash(data.password); // iguala el tiempo de respuesta
@@ -119,6 +121,7 @@ export class AuthService {
       emailNormalized,
       name: data.name,
       passwordHash: await this.deps.hasher.hash(data.password),
+      passwordChangedAt: this.deps.clock.now(),
       locale: data.locale,
       residenceCountry: data.residenceCountry,
     });
@@ -273,6 +276,15 @@ export class AuthService {
     const revoked = await this.deps.sessions.revokeAll(userId, sessionId);
     await this.deps.email.send(emailTemplates.passwordChanged(user.email));
     await this.deps.audit({ action: "auth.password_changed", actorUserId: userId, request: meta, metadata: { revokedSessions: revoked } });
+  }
+
+  /** Derecho de rectificación: nombre y país de residencia (que define la jurisdicción de privacidad). */
+  async updateProfile(userId: string, input: { name: string; residenceCountry: string | null }, meta: RequestMeta): Promise<void> {
+    const name = input.name.trim();
+    if (name.length < 2 || name.length > 120) throw new ValidationError("Ingresá tu nombre.", { name: "Requerido" });
+    const country = input.residenceCountry && /^[A-Z]{2}$/.test(input.residenceCountry) ? input.residenceCountry : null;
+    await this.deps.users.updateProfile(userId, { name, residenceCountry: country }, this.deps.clock.now());
+    await this.deps.audit({ action: "user.profile_updated", actorUserId: userId, request: meta });
   }
 
   /** Para operaciones sensibles (desactivar MFA, exportar todo, borrar la cuenta). */

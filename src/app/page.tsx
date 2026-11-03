@@ -37,7 +37,7 @@ export default async function HomePage() {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-10 pb-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:pt-20">
+        <section className="mx-auto grid grid-cols-1 max-w-6xl items-center gap-12 px-4 pt-10 pb-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:pt-20">
           <div>
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-semibold text-text-2">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden /> Gestión financiera multiempresa
@@ -59,28 +59,32 @@ export default async function HomePage() {
               ) : null}
             </div>
           </div>
-          <div className="relative mx-auto w-full max-w-md">
-            <div className="card relative overflow-hidden p-8">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-semibold text-text-2">Resultado de octubre</span>
-                <span className="rounded-full bg-good-soft px-2 py-0.5 text-[12px] font-semibold text-good">+18,4 %</span>
+          <figure className="mx-auto w-full max-w-md">
+            <div className="relative">
+              <div className="card relative overflow-hidden p-8">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold text-text-2">Resultado de octubre</span>
+                  <span className="rounded-full bg-good-soft px-2 py-0.5 text-[12px] font-semibold text-good">+18,4 %</span>
+                </div>
+                <p className="mt-3 text-[40px] leading-none font-bold tracking-[-0.02em]">$ 1.284.900</p>
+                <svg viewBox="0 0 320 120" className="mt-6 w-full" aria-hidden>
+                  {[0, 1, 2, 3].map((i) => (
+                    <line key={i} x1="0" x2="320" y1={20 + i * 30} y2={20 + i * 30} stroke="var(--grid)" />
+                  ))}
+                  {[34, 52, 44, 70, 62, 86, 78, 98].map((h, i) => (
+                    <path key={i} d={`M${12 + i * 38},110V${110 - h + 4}Q${12 + i * 38},${110 - h} ${16 + i * 38},${110 - h}H${28 + i * 38}Q${32 + i * 38},${110 - h} ${32 + i * 38},${110 - h + 4}V110Z`} fill={i === 7 ? "var(--accent)" : "var(--series-1-wash)"} />
+                  ))}
+                </svg>
               </div>
-              <p className="mt-3 text-[40px] leading-none font-bold tracking-[-0.02em]">$ 1.284.900</p>
-              <svg viewBox="0 0 320 120" className="mt-6 w-full" aria-hidden>
-                {[0, 1, 2, 3].map((i) => (
-                  <line key={i} x1="0" x2="320" y1={20 + i * 30} y2={20 + i * 30} stroke="var(--grid)" />
-                ))}
-                {[34, 52, 44, 70, 62, 86, 78, 98].map((h, i) => (
-                  <path key={i} d={`M${12 + i * 38},110V${110 - h + 4}Q${12 + i * 38},${110 - h} ${16 + i * 38},${110 - h}H${28 + i * 38}Q${32 + i * 38},${110 - h} ${32 + i * 38},${110 - h + 4}V110Z`} fill={i === 7 ? "var(--accent)" : "var(--series-1-wash)"} />
-                ))}
-              </svg>
+              <Isotype size={88} className="absolute -right-2 -bottom-8 drop-shadow-xl sm:-right-6" />
             </div>
-            <Isotype size={88} className="absolute -right-6 -bottom-8 drop-shadow-xl" />
-          </div>
+            {/* El cubo sobresale abajo a la derecha: el texto queda a la izquierda para no taparse. */}
+            <figcaption className="mt-3 pr-28 text-[12px] text-muted">Ejemplo ilustrativo: no son datos de ninguna empresa.</figcaption>
+          </figure>
         </section>
 
         <section className="border-t border-border bg-surface">
-          <div className="mx-auto grid max-w-6xl gap-x-10 gap-y-12 px-4 py-20 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
+          <div className="mx-auto grid grid-cols-1 max-w-6xl gap-x-10 gap-y-12 px-4 py-20 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
             {features.map((f) => (
               <div key={f.title}>
                 <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-accent-soft text-accent">
