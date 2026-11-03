@@ -58,7 +58,7 @@ Vercel Cron ──Bearer CRON_SECRET──▶ /api/cron/daily
 | T15 | Info. disclosure | Fugas en logs | Logger con redacción de contraseñas, tokens, cookies y claves; IDs de pedido para correlacionar | — |
 | T16 | Info. disclosure | Datos financieros en caché del navegador o la PWA | El service worker guarda solo estáticos y la página sin conexión; respuestas privadas `no-store` | — |
 | T17 | DoS | Abuso de importaciones, exportaciones o correos | Límites por empresa (importaciones), por usuario (exportaciones) y por destinatario (correos de alta y verificación) | Ataques volumétricos → protección del borde (Vercel Firewall o WAF) |
-| T18 | Elevation | Dependencia comprometida | Versiones exactas y lockfile; scripts de instalación solo para paquetes permitidos; `npm audit`, Trivy y Dependabot | Ataque a un paquete popular antes de ser detectado |
+| T18 | Elevation | Dependencia comprometida | Versiones exactas y lockfile; scripts de instalación solo para paquetes permitidos; acciones de CI fijadas por commit; Dependabot con espera de 7–14 días ante versiones nuevas; `npm audit`, Trivy y Semgrep | Ataque a un paquete popular antes de ser detectado |
 | T19 | Spoofing | Llamadas falsas al cron | `Authorization: Bearer CRON_SECRET` comparado en tiempo constante | — |
 
 ## 5. Próximos pasos recomendados

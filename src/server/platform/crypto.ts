@@ -25,19 +25,27 @@ export function hmacSha256(key: Buffer, data: string): string {
  * Formato: v1.<iv>.<tag>.<ciphertext> (base64url). El prefijo de versión permite rotar la clave.
  * `aad` liga el texto cifrado a su contexto (por ejemplo, el id del usuario): no se puede copiar a otra fila.
  */
+const GCM_IV_BYTES = 12;
+const GCM_TAG_BYTES = 16;
+
 export function encryptString(key: Buffer, plaintext: string, aad: string): string {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const iv = randomBytes(GCM_IV_BYTES);
+  const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: GCM_TAG_BYTES });
   cipher.setAAD(Buffer.from(aad));
   const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   return ["v1", iv.toString("base64url"), cipher.getAuthTag().toString("base64url"), ciphertext.toString("base64url")].join(".");
 }
 
 export function decryptString(key: Buffer, payload: string, aad: string): string {
-  const [version, iv, tag, ciphertext] = payload.split(".");
-  if (version !== "v1" || !iv || !tag || !ciphertext) throw new Error("Formato de dato cifrado desconocido");
-  const decipher = createDecipheriv("aes-256-gcm", key, Buffer.from(iv, "base64url"));
+  const parts = payload.split(".");
+  const [version, iv, tag, ciphertext] = parts;
+  if (parts.length !== 4 || version !== "v1" || !iv || !tag || !ciphertext) throw new Error("Formato de dato cifrado desconocido");
+  const ivBytes = Buffer.from(iv, "base64url");
+  const tagBytes = Buffer.from(tag, "base64url");
+  // Etiqueta de 16 bytes exactos: GCM aceptaría un prefijo de 4 y falsificar el dato sería mucho más fácil.
+  if (ivBytes.length !== GCM_IV_BYTES || tagBytes.length !== GCM_TAG_BYTES) throw new Error("Dato cifrado alterado o incompleto");
+  const decipher = createDecipheriv("aes-256-gcm", key, ivBytes, { authTagLength: GCM_TAG_BYTES });
   decipher.setAAD(Buffer.from(aad));
-  decipher.setAuthTag(Buffer.from(tag, "base64url"));
+  decipher.setAuthTag(tagBytes);
   return Buffer.concat([decipher.update(Buffer.from(ciphertext, "base64url")), decipher.final()]).toString("utf8");
 }

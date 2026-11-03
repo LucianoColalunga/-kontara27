@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      # Espera antes de proponer una versión recién publicada (los paquetes maliciosos suelen detectarse en días).
+      default-days: 7
+      semver-major-days: 14
     open-pull-requests-limit: 10
     groups:
       # Correcciones de seguridad y parches menores juntos; los cambios mayores, de a uno.
@@ -22,3 +26,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      # Espera antes de proponer una versión recién publicada (los paquetes maliciosos suelen detectarse en días).
+      default-days: 7
+      semver-major-days: 14

@@ -18,7 +18,7 @@ jobs:
     name: Secretos en todo el historial (Gitleaks)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest git /repo --redact --verbose
@@ -27,7 +27,7 @@ jobs:
     name: Análisis estático (Semgrep)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - run: >-
           docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:latest semgrep scan
           --config p/javascript --config p/typescript --config p/react --config p/owasp-top-ten --config p/secrets
@@ -37,8 +37,8 @@ jobs:
     name: Dependencias y configuración (npm audit + Trivy)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       # Producción: ninguna vulnerabilidad alta o crítica. Desarrollo: los riesgos aceptados están en docs/security.
@@ -66,8 +66,8 @@ jobs:
       TEST_DB_OWNER_PASSWORD: ci-owner-only
       TEST_DB_APP_PASSWORD: ci-app-only
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -82,7 +82,7 @@ jobs:
           mkdir -p zap && chmod 777 zap
           docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://localhost:3100/ingresar -r informe-zap.html -J informe-zap.json -I
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: informe-zap
