@@ -105,7 +105,9 @@ Detalle en [`docs/security/`](../security/).
 - MFA TOTP (RFC 6238) con secretos cifrados (AES-256-GCM) y códigos de recuperación hasheados.
 - Límite de intentos por IP y por cuenta; respuestas idénticas para cuentas existentes e inexistentes.
 - CSP con nonce por request, HSTS, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy`.
-- Server Actions con verificación de `Origin`; route handlers mutantes validan `Origin` explícitamente.
+- Toda modificación de datos pasa por Server Actions, que Next.js rechaza si el `Origin` no coincide con el
+  host (CSRF; hay una prueba E2E con un envío forjado). Las rutas API solo atienden `GET`: descargas
+  (con sesión y permiso; dejan registro de auditoría), salud y la tarea diaria (con `CRON_SECRET`).
 - Validación de toda entrada con Zod en el borde; consultas parametrizadas (Drizzle), sin SQL
   concatenado.
 - Adjuntos con tipo verificado por firma de bytes, claves aleatorias, descarga por enlace temporal.

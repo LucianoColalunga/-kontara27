@@ -1,0 +1,90 @@
+name: Seguridad
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # lunes 06:00 UTC: reglas y bases de vulnerabilidades nuevas
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Los escáneres corren como imágenes oficiales en su última versión a propósito: así se usan siempre
+# las reglas y bases de vulnerabilidades del día. No despliegan nada ni reciben secretos.
+jobs:
+  secretos:
+    name: Secretos en todo el historial (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest git /repo --redact --verbose
+
+  sast:
+    name: Análisis estático (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:latest semgrep scan
+          --config p/javascript --config p/typescript --config p/react --config p/owasp-top-ten --config p/secrets
+          --metrics=off --severity ERROR --error
+
+  dependencias:
+    name: Dependencias y configuración (npm audit + Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Producción: ninguna vulnerabilidad alta o crítica. Desarrollo: los riesgos aceptados están en docs/security.
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm audit --audit-level=high
+      - run: >-
+          docker run --rm -v "$PWD:/src" aquasec/trivy:latest fs /src
+          --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
+
+  dast:
+    name: DAST pasivo (OWASP ZAP baseline) sobre el build de producción
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-superuser-only
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      TEST_DATABASE_ADMIN_URL: postgres://postgres:ci-superuser-only@127.0.0.1:5432/postgres
+      TEST_DB_OWNER_PASSWORD: ci-owner-only
+      TEST_DB_APP_PASSWORD: ci-app-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Mismo servidor que las pruebas E2E: base efímera propia, claves aleatorias, CSP de producción.
+      - run: |
+          npx tsx scripts/e2e/server.ts > servidor.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3100/api/health/ready && exit 0; sleep 2; done
+          cat servidor.log; exit 1
+      - run: |
+          mkdir -p zap && chmod 777 zap
+          docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://localhost:3100/ingresar -r informe-zap.html -J informe-zap.json -I
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: informe-zap
+          path: zap/
+          retention-days: 30
