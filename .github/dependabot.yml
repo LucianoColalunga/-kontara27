@@ -10,6 +10,13 @@ updates:
       # Correcciones de seguridad y parches menores juntos; los cambios mayores, de a uno.
       menores:
         update-types: [minor, patch]
+    ignore:
+      # Los tipos de Node siguen a la versión de Node con la que corre la app (22/24), no a la última.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # typescript-eslint solo admite TypeScript < 6.1: se actualiza a mano cuando lo soporte.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
