@@ -28,8 +28,8 @@ updates:
       day: monday
     cooldown:
       # Espera antes de proponer una versión recién publicada (los paquetes maliciosos suelen detectarse en días).
+      # Este ecosistema no admite esperas distintas por tipo de versión.
       default-days: 7
-      semver-major-days: 14
   # Imágenes de los escáneres del workflow «Seguridad» (versión + digest).
   - package-ecosystem: docker-compose
     directory: /.github/escaneres
