@@ -30,6 +30,10 @@ updates:
       # Espera antes de proponer una versión recién publicada (los paquetes maliciosos suelen detectarse en días).
       # Este ecosistema no admite esperas distintas por tipo de versión.
       default-days: 7
+    groups:
+      # init y analyze de CodeQL tienen que quedar siempre en la misma versión.
+      codeql:
+        patterns: ["github/codeql-action/*"]
   # Imágenes de los escáneres del workflow «Seguridad» (versión + digest).
   - package-ecosystem: docker-compose
     directory: /scripts/seguridad
