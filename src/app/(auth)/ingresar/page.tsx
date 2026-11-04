@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Callout } from "@/components/ui/primitives";
+import { safeNext } from "@/lib/safe-next";
 import { getSession } from "@/server/http/session";
 import { LoginForm } from "../forms";
 
@@ -21,7 +22,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </p>
       {params.verificado ? <Callout tone="good" className="mb-4">Correo confirmado. Ya podés ingresar.</Callout> : null}
       {params.restablecida ? <Callout tone="good" className="mb-4">Contraseña actualizada. Cerramos tus otras sesiones por seguridad.</Callout> : null}
-      <LoginForm next={params.next ?? "/app"} />
+      {/* El destino se valida al mostrarlo y de nuevo en la acción: el formulario nunca lleva uno externo. */}
+      <LoginForm next={typeof params.next === "string" ? safeNext(params.next) : "/app"} />
     </div>
   );
 }

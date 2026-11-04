@@ -37,6 +37,8 @@ Primera versión funcional, sin instalación de producción todavía.
 - Ids ajenos o mal formados en la URL responden 404 (KS-03).
 - Marcas de tiempo de identidad desde un único reloj (KS-04).
 - Cifrado AES-GCM con etiqueta de autenticación de largo fijo (KS-07).
+- Aislamiento entre orígenes con COEP y CORP (KS-08).
+- El destino `next` del ingreso se valida también al mostrar el formulario.
 - Cadena de suministro: acciones de GitHub fijadas por commit, imágenes de los escáneres fijadas por versión y
   digest, checkout de CI sin token persistido, espera de Dependabot antes de proponer versiones nuevas y runners
   con imagen fija.

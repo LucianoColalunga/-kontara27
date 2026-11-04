@@ -15,6 +15,9 @@ test("cabeceras de seguridad y CSP estricta con nonce", async ({ request }) => {
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(headers["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(headers["cross-origin-embedder-policy"]).toBe("require-corp");
+  expect(headers["cross-origin-resource-policy"]).toBe("same-origin");
   expect(headers["x-powered-by"]).toBeUndefined();
 });
 
@@ -47,8 +50,9 @@ test("ingreso: mismo mensaje para correo inexistente y contraseña incorrecta; c
   expect(unknown).toBeTruthy();
   expect(unknown).toBe(wrong);
 
-  // Destino externo en «next»: se ignora y se queda dentro de la app.
+  // Destino externo en «next»: ni siquiera llega al formulario, y al ingresar se queda dentro de la app.
   await page.goto("/ingresar?next=//sitio-externo.example/robar");
+  await expect(page.locator('input[name="next"]')).toHaveValue("/app");
   await signIn(page, email, PASSWORD);
   await page.waitForURL((url) => url.pathname.startsWith("/app/"));
   expect(new URL(page.url()).host).toBe(`localhost:${E2E_PORT}`);

@@ -52,7 +52,7 @@ Vercel Cron ──Bearer CRON_SECRET──▶ /api/cron/daily
 | T9 | Tampering | XSS | React escapa por defecto; sin `dangerouslySetInnerHTML`; CSP con nonce y `strict-dynamic`, sin `unsafe-inline` ni `unsafe-eval` en producción | — |
 | T10 | Tampering | Archivos maliciosos (planillas, comprobantes) | Tipo verificado por contenido (firma), límites de tamaño; lector XLSX propio con límites anti zip-bomb y sin DTD (sin XXE); descargas con `Content-Disposition: attachment` y CSP `sandbox` | Malware dentro de un PDF legítimo → evaluar escaneo antivirus en el bucket |
 | T11 | Tampering | Inyección de fórmulas en exportaciones | Textos que empiezan con `= + - @` se neutralizan en CSV y XLSX | — |
-| T12 | Tampering | Redirección abierta | `safeNext` acepta solo rutas internas (sin `//`, `\`, segmentos `.`/`..` ni `/api`) | — |
+| T12 | Tampering | Redirección abierta | `safeNext` acepta solo rutas internas (sin `//`, `\`, segmentos `.`/`..` ni `/api`), al mostrar el formulario y al procesarlo | — |
 | T13 | Repudiation | Negar una operación | Registro de auditoría de solo inserción (sin UPDATE/DELETE para el rol de la app) e historial de versiones de cada movimiento | Un operador con acceso de superusuario a la base → backups con retención e integridad verificable |
 | T14 | Info. disclosure | Robo de backups o discos | Cifrado del proveedor en reposo; identificaciones fiscales y secretos TOTP cifrados además con AES-256-GCM en la aplicación | `ENCRYPTION_KEY` vive en variables de entorno → evaluar KMS y procedimiento de rotación |
 | T15 | Info. disclosure | Fugas en logs | Logger con redacción de contraseñas, tokens, cookies y claves; IDs de pedido para correlacionar | — |
@@ -60,10 +60,12 @@ Vercel Cron ──Bearer CRON_SECRET──▶ /api/cron/daily
 | T17 | DoS | Abuso de importaciones, exportaciones o correos | Límites por empresa (importaciones), por usuario (exportaciones) y por destinatario (correos de alta y verificación) | Ataques volumétricos → protección del borde (Vercel Firewall o WAF) |
 | T18 | Elevation | Dependencia comprometida | Versiones exactas y lockfile; scripts de instalación solo para paquetes permitidos; acciones de CI fijadas por commit e imágenes de los escáneres por digest; el checkout de CI no guarda el token; Dependabot con espera de 7–14 días ante versiones nuevas; `npm audit`, Trivy y Semgrep | Ataque a un paquete popular antes de ser detectado |
 | T19 | Spoofing | Llamadas falsas al cron | `Authorization: Bearer CRON_SECRET` comparado en tiempo constante | — |
+| T20 | Info. disclosure | Otro sitio carga respuestas de la app para leerlas por canales laterales (tipo Spectre) | COOP, COEP y CORP en todas las respuestas; cookies SameSite=Lax, así que esas cargas no llevan sesión | — |
 
 ## 5. Próximos pasos recomendados
 
-1. Correr por primera vez el workflow **Seguridad** (Gitleaks, Semgrep, Trivy, ZAP) y resolver lo que aparezca.
+1. Correr por primera vez el workflow **Seguridad** en GitHub Actions y resolver lo que aparezca (Gitleaks, Semgrep,
+   Trivy y ZAP ya pasaron en local; ver el informe de seguridad).
 2. Prueba de penetración externa antes del lanzamiento comercial.
 3. Passkeys (WebAuthn) como segundo factor y como alternativa a la contraseña.
 4. Gestión de claves en un KMS con rotación documentada.
