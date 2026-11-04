@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 
-# Los escáneres son imágenes oficiales fijadas por versión y digest en .github/escaneres/compose.yaml
+# Los escáneres son imágenes oficiales fijadas por versión y digest en scripts/seguridad/compose.yaml
 # (Dependabot propone las nuevas). Las reglas de Semgrep y la base de Trivy se descargan en cada corrida.
 # No despliegan nada ni reciben secretos, y el checkout no deja el token en el repositorio que leen.
 jobs:
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - run: docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/repo" gitleaks git /repo --redact --verbose
+      - run: docker compose -f scripts/seguridad/compose.yaml run --rm -T -v "$PWD:/repo" gitleaks git /repo --redact --verbose
 
   sast:
     name: Análisis estático (Semgrep)
@@ -33,7 +33,7 @@ jobs:
         with:
           persist-credentials: false
       - run: >-
-          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/src" -w /src semgrep semgrep scan
+          docker compose -f scripts/seguridad/compose.yaml run --rm -T -v "$PWD:/src" -w /src semgrep semgrep scan
           --config p/javascript --config p/typescript --config p/react --config p/owasp-top-ten --config p/secrets
           --metrics=off --severity ERROR --error
 
@@ -51,7 +51,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm audit --audit-level=high
       - run: >-
-          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/src" trivy fs /src
+          docker compose -f scripts/seguridad/compose.yaml run --rm -T -v "$PWD:/src" trivy fs /src
           --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
 
   dast:
@@ -88,7 +88,7 @@ jobs:
           cat servidor.log; exit 1
       - run: |
           mkdir -p zap && chmod 777 zap
-          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD/zap:/zap/wrk:rw" zap \
+          docker compose -f scripts/seguridad/compose.yaml run --rm -T -v "$PWD/zap:/zap/wrk:rw" zap \
             zap-baseline.py -t http://localhost:3100/ingresar -r informe-zap.html -J informe-zap.json -I
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()

@@ -1,8 +1,9 @@
 # Escáneres del workflow «Seguridad», fijados por versión y digest: aunque alguien reescriba una etiqueta
 # (en marzo de 2026 se publicaron imágenes de Trivy comprometidas bajo etiquetas existentes, `latest`
 # incluida), acá se ejecuta siempre la misma imagen. No levanta servicios: el workflow usa `docker compose run`.
-# Dependabot (ecosistema docker-compose) propone las versiones nuevas con 7 días de espera. Las reglas de
-# Semgrep y la base de vulnerabilidades de Trivy se descargan en cada corrida, así que no envejecen.
+# Dependabot (ecosistema docker-compose) propone las versiones nuevas. Solo puede esperar 7 días con las de
+# Docker Hub (GHCR no informa la fecha de publicación): las de GHCR se fusionan con 7 días de publicadas y CI
+# en verde. Las reglas de Semgrep y la base de vulnerabilidades de Trivy se descargan en cada corrida.
 name: escaneres
 
 services:

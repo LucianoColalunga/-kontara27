@@ -32,10 +32,11 @@ updates:
       default-days: 7
   # Imágenes de los escáneres del workflow «Seguridad» (versión + digest).
   - package-ecosystem: docker-compose
-    directory: /.github/escaneres
+    directory: /scripts/seguridad
     schedule:
       interval: weekly
       day: monday
     cooldown:
       # Las imágenes de Trivy comprometidas en marzo de 2026 se retiraron en menos de 4 días.
+      # Dependabot solo la aplica en Docker Hub; GHCR no informa la fecha de publicación.
       default-days: 7
