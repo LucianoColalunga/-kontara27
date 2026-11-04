@@ -72,6 +72,11 @@ npm run dev
 
 La app queda en http://localhost:3000. Los correos de desarrollo no se envían: se guardan en `.data/outbox/`.
 
+En Windows, `scripts/abrir-kontara.ps1` hace todo eso de una vez con el build de producción (base, migraciones,
+build si cambió el código, app y navegador) y sirve como destino de un acceso directo del escritorio:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File <ruta>\scripts\abrir-kontara.ps1`. Al cerrar su ventana
+se apaga la base en orden y se cierra la app.
+
 ## Comandos
 
 | Comando | Qué hace |
