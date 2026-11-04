@@ -37,8 +37,9 @@ Primera versión funcional, sin instalación de producción todavía.
 - Ids ajenos o mal formados en la URL responden 404 (KS-03).
 - Marcas de tiempo de identidad desde un único reloj (KS-04).
 - Cifrado AES-GCM con etiqueta de autenticación de largo fijo (KS-07).
-- Cadena de suministro: acciones de GitHub fijadas por commit, espera de Dependabot antes de proponer versiones
-  nuevas y runners con imagen fija.
+- Cadena de suministro: acciones de GitHub fijadas por commit, imágenes de los escáneres fijadas por versión y
+  digest, checkout de CI sin token persistido, espera de Dependabot antes de proponer versiones nuevas y runners
+  con imagen fija.
 - esbuild de desarrollo actualizado por override (KS-05).
 
 Detalle en el [informe de seguridad](docs/security/informe-2026-11-03.md).

@@ -30,3 +30,12 @@ updates:
       # Espera antes de proponer una versión recién publicada (los paquetes maliciosos suelen detectarse en días).
       default-days: 7
       semver-major-days: 14
+  # Imágenes de los escáneres del workflow «Seguridad» (versión + digest).
+  - package-ecosystem: docker-compose
+    directory: /.github/escaneres
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      # Las imágenes de Trivy comprometidas en marzo de 2026 se retiraron en menos de 4 días.
+      default-days: 7

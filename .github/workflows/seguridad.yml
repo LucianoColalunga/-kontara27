@@ -11,8 +11,9 @@ on:
 permissions:
   contents: read
 
-# Los escáneres corren como imágenes oficiales en su última versión a propósito: así se usan siempre
-# las reglas y bases de vulnerabilidades del día. No despliegan nada ni reciben secretos.
+# Los escáneres son imágenes oficiales fijadas por versión y digest en .github/escaneres/compose.yaml
+# (Dependabot propone las nuevas). Las reglas de Semgrep y la base de Trivy se descargan en cada corrida.
+# No despliegan nada ni reciben secretos, y el checkout no deja el token en el repositorio que leen.
 jobs:
   secretos:
     name: Secretos en todo el historial (Gitleaks)
@@ -21,15 +22,18 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
-      - run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest git /repo --redact --verbose
+          persist-credentials: false
+      - run: docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/repo" gitleaks git /repo --redact --verbose
 
   sast:
     name: Análisis estático (Semgrep)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - run: >-
-          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:latest semgrep scan
+          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/src" -w /src semgrep semgrep scan
           --config p/javascript --config p/typescript --config p/react --config p/owasp-top-ten --config p/secrets
           --metrics=off --severity ERROR --error
 
@@ -38,6 +42,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
@@ -45,7 +51,7 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm audit --audit-level=high
       - run: >-
-          docker run --rm -v "$PWD:/src" aquasec/trivy:latest fs /src
+          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD:/src" trivy fs /src
           --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
 
   dast:
@@ -67,6 +73,8 @@ jobs:
       TEST_DB_APP_PASSWORD: ci-app-only
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
@@ -80,7 +88,7 @@ jobs:
           cat servidor.log; exit 1
       - run: |
           mkdir -p zap && chmod 777 zap
-          docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+          docker compose -f .github/escaneres/compose.yaml run --rm -T -v "$PWD/zap:/zap/wrk:rw" zap \
             zap-baseline.py -t http://localhost:3100/ingresar -r informe-zap.html -J informe-zap.json -I
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
